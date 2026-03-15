@@ -26,5 +26,5 @@ Clear-Host
 
 # Fast fetch and Force it to use user config every time (bypass path confusion)
 if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
-    fastfetch -c "C:/Users/tom/.config/fastfetch/config.jsonc"
+    fastfetch -c "$HOME/.config/fastfetch/config.jsonc"
 }
