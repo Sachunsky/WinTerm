@@ -1,2 +1,2 @@
 # WinTerm
-A collection of Powershell Profiles, Configs and other stuff. 
+A collection of my Powershell profile, configs and other stuff. 
