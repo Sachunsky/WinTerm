@@ -14,6 +14,8 @@ $basePaths = @(
     "A:\github\clones"
 )
 
+$winTermPath = "A:\github\ownRepos\WinTerm"
+
 # Function declarations for Aliases
 function Set-Location-Repo {
     <#
@@ -128,9 +130,15 @@ function Reload-Profile {
     . $PROFILE.CurrentUserAllHosts
 }
 
+function Export-WinGet {
+    winget export -o "$winTermPath\Configs\Winget_Packages\packages.json"
+    echo "Exported WinGet Packages to '$winTermPath\Configs\Winget_Packages\packages.json'"
+}
+
 # Short aliases for quick access
 Set-Alias -Name repo -Value Set-Location-Repo
 Set-Alias -Name mkcd -Value New-Item-And-Set-Location
+Set-Alias -Name wgexport -Value Export-WinGet
 
 # Oh My Posh init
 oh-my-posh init pwsh --config 'amro' | Invoke-Expression

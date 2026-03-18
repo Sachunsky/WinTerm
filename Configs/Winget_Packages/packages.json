@@ -1,6 +1,6 @@
 {
 	"$schema" : "https://aka.ms/winget-packages.schema.2.0.json",
-	"CreationDate" : "2026-03-15T17:10:17.262-00:00",
+	"CreationDate" : "2026-03-18T02:26:04.019-00:00",
 	"Sources" : 
 	[
 		{
@@ -31,6 +31,9 @@
 					"PackageIdentifier" : "QMK.QMKToolbox"
 				},
 				{
+					"PackageIdentifier" : "LastPass.LastPass"
+				},
+				{
 					"PackageIdentifier" : "RevoUninstaller.RevoUninstaller"
 				},
 				{
@@ -41,9 +44,6 @@
 				},
 				{
 					"PackageIdentifier" : "Elgato.StreamDeck"
-				},
-				{
-					"PackageIdentifier" : "LastPass.LastPass"
 				},
 				{
 					"PackageIdentifier" : "PuTTY.PuTTY"
