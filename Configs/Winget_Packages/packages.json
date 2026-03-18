@@ -1,6 +1,6 @@
 {
 	"$schema" : "https://aka.ms/winget-packages.schema.2.0.json",
-	"CreationDate" : "2026-03-18T02:26:04.019-00:00",
+	"CreationDate" : "2026-03-18T03:55:06.583-00:00",
 	"Sources" : 
 	[
 		{
@@ -140,9 +140,6 @@
 				},
 				{
 					"PackageIdentifier" : "Microsoft.PowerToys"
-				},
-				{
-					"PackageIdentifier" : "JackieLiu.NotepadsApp"
 				},
 				{
 					"PackageIdentifier" : "Microsoft.AppInstaller"

@@ -131,7 +131,7 @@ function Reload-Profile {
 }
 
 function Export-WinGet {
-    winget export -o "$winTermPath\Configs\Winget_Packages\packages.json"
+    winget export -o "$winTermPath\Configs\Winget_Packages\packages.json" *>$null
     echo "Exported WinGet Packages to '$winTermPath\Configs\Winget_Packages\packages.json'"
 }
 
