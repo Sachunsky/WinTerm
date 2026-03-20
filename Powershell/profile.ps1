@@ -135,10 +135,52 @@ function Export-WinGet {
     echo "Exported WinGet Packages to '$winTermPath\Configs\Winget_Packages\packages.json'"
 }
 
+# Git shorthand functions
+function Invoke-GitCommit {
+    <#
+    .SYNOPSIS
+        Stages all changes and commits with a message.
+    .EXAMPLE
+        gitc "fix typo"
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Message
+    )
+    git add -A
+    git commit -m $Message
+}
+
+function Invoke-GitPush {
+    <#
+    .SYNOPSIS
+        Pushes the current branch to origin.
+    #>
+    git push origin HEAD
+}
+
+function Invoke-GitCommitAndPush {
+    <#
+    .SYNOPSIS
+        Stages all changes, commits, and pushes the current branch.
+    .EXAMPLE
+        gitcp "add new feature"
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Message
+    )
+    Invoke-GitCommit -Message $Message
+    if ($LASTEXITCODE -eq 0) {
+        Invoke-GitPush
+    }
+}
+
 # Short aliases for quick access
 Set-Alias -Name repo -Value Set-Location-Repo
 Set-Alias -Name mkcd -Value New-Item-And-Set-Location
 Set-Alias -Name wgexport -Value Export-WinGet
+Set-Alias -Name gitc -Value Invoke-GitCommit
+Set-Alias -Name gitp -Value Invoke-GitPush
+Set-Alias -Name gitcp -Value Invoke-GitCommitAndPush
 
 # Oh My Posh init
 oh-my-posh init pwsh --config 'amro' | Invoke-Expression
