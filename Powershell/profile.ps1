@@ -1,4 +1,6 @@
-# Minimal profile: UTF‑8 + Oh My Posh (if installed) + Fastfetch with explicit config path
+# Personal PS Profile: UTF‑8 + Oh My Posh + Fastfetch with custom config
+
+# Set UTF8 Encoding
 try {
     [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -6,8 +8,15 @@ try {
     chcp 65001 > $null
 } catch {}
 
-# Function declarations for Aliases
+# Variable declarations
+$basePaths = @(
+    "A:\github\ownRepos",
+    "A:\github\clones"
+)
 
+$winTermPath = "A:\github\ownRepos\WinTerm"
+
+# Function declarations for Aliases
 function Set-Location-Repo {
     <#
     .SYNOPSIS
@@ -15,8 +24,8 @@ function Set-Location-Repo {
     .DESCRIPTION
         Searches known repo base paths for a matching folder.
         - No argument: opens fzf picker with all repos
-        - Exact match: navigates directly (or picks via fzf if duplicates exist)
-        - Partial match: navigates directly or picks via fzf if ambiguous
+        - Single match: navigates directly
+        - Multiple matches: picks via fzf
     .PARAMETER RepoName
         Full or partial name of the repo folder to navigate to.
     .EXAMPLE
@@ -27,13 +36,7 @@ function Set-Location-Repo {
     param(
         [string]$RepoName
     )
-    
-    # Base paths where repos live
-    $basePaths = @(
-        "A:\github\ownRepos",
-        "A:\github\clones"
-    )
-    
+
     # No argument given -> list all repos and let the user pick with fzf
     if (-not $RepoName) {
         $allRepos = foreach ($base in $basePaths) {
@@ -43,9 +46,9 @@ function Set-Location-Repo {
                 }
             }
         }
-        
+
         $selection = $allRepos | fzf --prompt="Select repo: "
-        
+
         # Extract the path from between the parentheses and navigate
         if ($selection) {
             $selectedPath = ($selection -replace '.*\((.+)\)$', '$1')
@@ -53,36 +56,30 @@ function Set-Location-Repo {
         }
         return
     }
-    
-    # Argument given -> collect exact and partial matches across all base paths
-    $exactMatches = @()
-    $partialMatches = @()
-    
+
+    # Argument given -> collect all matches (exact and partial) across all base paths
+    $matches = @()
+
     foreach ($base in $basePaths) {
         if (-not (Test-Path $base)) { continue }
-        
+
         Get-ChildItem -Path $base -Directory | ForEach-Object {
-            if ($_.Name -eq $RepoName) {
-                $exactMatches += $_
-            } elseif ($_.Name -like "*$RepoName*") {
-                $partialMatches += $_
+            if ($_.Name -like "*$RepoName*") {
+                $matches += $_
             }
         }
     }
-    
-    # Prefer exact matches over partial ones
-    $results = if ($exactMatches.Count -gt 0) { $exactMatches } else { $partialMatches }
-    
-    if ($results.Count -gt 1) {
+
+    if ($matches.Count -gt 1) {
         # Multiple matches -> let the user disambiguate with fzf
-        $selection = $results | ForEach-Object { "$($_.Name) ($($_.FullName))" } | fzf --prompt="Multiple matches: "
+        $selection = $matches | ForEach-Object { "$($_.Name) ($($_.FullName))" } | fzf --prompt="Multiple matches: "
         if ($selection) {
             $selectedPath = ($selection -replace '.*\((.+)\)$', '$1')
             Set-Location $selectedPath
         }
-    } elseif ($results.Count -eq 1) {
+    } elseif ($matches.Count -eq 1) {
         # Single match -> navigate directly
-        Set-Location $results[0].FullName
+        Set-Location $matches[0].FullName
     } else {
         Write-Warning "Repo '$RepoName' not found in any known location."
     }
@@ -91,12 +88,7 @@ function Set-Location-Repo {
 # Tab completion - suggests repo folder names from all base paths
 Register-ArgumentCompleter -CommandName Set-Location-Repo -ParameterName RepoName -ScriptBlock {
     param($commandName, $parameterName, $wordToComplete)
-    
-    $basePaths = @(
-        "A:\github\ownRepos",
-        "A:\github\clones"
-    )
-    
+
     # Collect all matching repos across all base paths
     $basePaths | ForEach-Object {
         if (Test-Path $_) {
@@ -113,11 +105,112 @@ Register-ArgumentCompleter -CommandName Set-Location-Repo -ParameterName RepoNam
     }
 }
 
-# Short alias for quick access
+# Creates Directory and cd's into it.
+function New-Item-And-Set-Location {
+    param(
+        [string]$dirPath
+    )
+
+    if (!(Test-Path $dirPath)) {
+        New-Item -Path $dirPath -ItemType Directory
+    }
+    else {
+        Write-Warning "Directory '$dirPath' already exists."
+    }
+    Set-Location $dirPath
+}
+
+# Edit PS Profile ( yes, this one :) )
+function Edit-Profile {
+    hx $PROFILE.CurrentUserAllHosts
+}
+
+# Reload PS Profile
+function Reload-Profile {
+    . $PROFILE.CurrentUserAllHosts
+}
+
+function Export-WinGet {
+    winget export -o "$winTermPath\Configs\Winget_Packages\packages.json" *>$null
+    echo "Exported WinGet Packages to '$winTermPath\Configs\Winget_Packages\packages.json'"
+}
+
+# Git shorthand functions
+function Invoke-GitCommit {
+    <#
+    .SYNOPSIS
+        Stages all changes and commits with a message.
+    .EXAMPLE
+        gitc "fix typo"
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Message
+    )
+    git add -A
+    git commit -m $Message
+}
+
+function Invoke-GitPush {
+    <#
+    .SYNOPSIS
+        Pushes the current branch to origin.
+    #>
+    git push origin HEAD
+}
+
+function Invoke-GitCommitAndPush {
+    <#
+    .SYNOPSIS
+        Stages all changes, commits, and pushes the current branch.
+    .EXAMPLE
+        gitcp "add new feature"
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Message
+    )
+    Invoke-GitCommit -Message $Message
+    if ($LASTEXITCODE -eq 0) {
+        Invoke-GitPush
+    }
+}
+
+function Invoke-GitUndo {
+    <#
+    .SYNOPSIS
+        Soft-resets the last commit, keeping changes staged.
+    #>
+    git reset --soft HEAD~1
+}
+
+function Invoke-GitAmend {
+    <#
+    .SYNOPSIS
+        Stages all changes and amends the last commit without editing the message.
+    #>
+    git add -A
+    git commit --amend --no-edit
+}
+
+function Invoke-GitFetch {
+    <#
+    .SYNOPSIS
+        Fetches from origin.
+    #>
+    git fetch origin
+}
+
+# Short aliases for quick access
 Set-Alias -Name repo -Value Set-Location-Repo
+Set-Alias -Name mkcd -Value New-Item-And-Set-Location
+Set-Alias -Name wgexport -Value Export-WinGet
+Set-Alias -Name gitc -Value Invoke-GitCommit
+Set-Alias -Name gitp -Value Invoke-GitPush
+Set-Alias -Name gitcp -Value Invoke-GitCommitAndPush
+Set-Alias -Name gitundo -Value Invoke-GitUndo
+Set-Alias -Name gitamend -Value Invoke-GitAmend
+Set-Alias -Name gitf -Value Invoke-GitFetch
 
 # Oh My Posh init
-# oh-my-posh init pwsh --config 'jblab_2021' | Invoke-Expression
 oh-my-posh init pwsh --config 'amro' | Invoke-Expression
 
 # Init Zoxide
