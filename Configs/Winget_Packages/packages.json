@@ -1,6 +1,6 @@
 {
 	"$schema" : "https://aka.ms/winget-packages.schema.2.0.json",
-	"CreationDate" : "2026-03-18T03:55:06.583-00:00",
+	"CreationDate" : "2026-03-21T03:58:27.539-00:00",
 	"Sources" : 
 	[
 		{
@@ -82,6 +82,9 @@
 					"PackageIdentifier" : "Microsoft.DotNet.AspNetCore.8"
 				},
 				{
+					"PackageIdentifier" : "FreeTube.FreeTube"
+				},
+				{
 					"PackageIdentifier" : "OpenWhisperSystems.Signal"
 				},
 				{
@@ -104,6 +107,9 @@
 				},
 				{
 					"PackageIdentifier" : "Microsoft.OneDrive"
+				},
+				{
+					"PackageIdentifier" : "Schniz.fnm"
 				},
 				{
 					"PackageIdentifier" : "Spotify.Spotify"
@@ -142,6 +148,9 @@
 					"PackageIdentifier" : "Microsoft.PowerToys"
 				},
 				{
+					"PackageIdentifier" : "Elgato.WaveLink"
+				},
+				{
 					"PackageIdentifier" : "Microsoft.AppInstaller"
 				},
 				{
@@ -166,5 +175,5 @@
 			}
 		}
 	],
-	"WinGetVersion" : "1.28.190"
+	"WinGetVersion" : "1.28.220"
 }

@@ -130,6 +130,7 @@ function Reload-Profile {
     . $PROFILE.CurrentUserAllHosts
 }
 
+# Create a WinGet Export
 function Export-WinGet {
     winget export -o "$winTermPath\Configs\Winget_Packages\packages.json" *>$null
     echo "Exported WinGet Packages to '$winTermPath\Configs\Winget_Packages\packages.json'"
@@ -199,6 +200,30 @@ function Invoke-GitFetch {
     git fetch origin
 }
 
+function Set-Venv {
+    if(Test-Path ".\.venv\Scripts\activate") {
+        .\.venv\Scripts\activate
+    }
+    else {
+        return Write-Warning "No Venv Path. Check destination!"
+    }
+    if ($env:VIRTUAL_ENV) {
+        Echo "Activated Venv in Folder: " && Split-Path (Split-Path $env:VIRTUAL_ENV -Parent) -Leaf
+    }
+    else {
+        return Write-Warning "Venv failed to activate."
+    }
+    return
+}
+
+function Get-Venv {
+    if ($env:VIRTUAL_ENV) {
+        Split-Path (Split-Path $env:VIRTUAL_ENV -Parent) -Leaf
+    } else {
+        "No active Venv"
+    }
+}
+
 # Short aliases for quick access
 Set-Alias -Name repo -Value Set-Location-Repo
 Set-Alias -Name mkcd -Value New-Item-And-Set-Location
@@ -209,12 +234,18 @@ Set-Alias -Name gitcp -Value Invoke-GitCommitAndPush
 Set-Alias -Name gitundo -Value Invoke-GitUndo
 Set-Alias -Name gitamend -Value Invoke-GitAmend
 Set-Alias -Name gitf -Value Invoke-GitFetch
+Set-Alias -Name pv -Value Set-Venv
+Set-Alias -Name cpv -Value Get-Venv
+Set-Alias -Name dpv -Value deactivate
 
 # Oh My Posh init
 oh-my-posh init pwsh --config 'amro' | Invoke-Expression
 
 # Init Zoxide
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
+# Init Fast Node Manager
+fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
 
 # Clear Terminal
 Clear-Host
